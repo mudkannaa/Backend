@@ -1,0 +1,8 @@
+PUT http://localhost:3001/api/notes/2
+Content-Type: application/json
+
+{
+    "id": 2,
+    "content": "Javascript is the language of the Web",
+    "important": true
+}
