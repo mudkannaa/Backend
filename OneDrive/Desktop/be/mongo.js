@@ -10,7 +10,7 @@ const password = process.argv[2];
 
 const url =
 
-    `mongodb+srv://ashwinimudknna:${password}@cluster0.47boroe.mongodb.net/`;
+    `mongodb+srv://sathishdatascientist:${password}@cluster0.2r9mjwk.mongodb.net/noteApp?retryWrites=true&w=majority`;
 
 // set the strictQuery to false, so that it will disable the strict mode for the query filters
 // mongoose will not throw any error when we use an undefined field in the query (ignored)
@@ -43,11 +43,11 @@ const noteSchema = new mongoose.Schema({
 // create a model
 const Note = mongoose.model('Note', noteSchema, 'notes');
 
-//prepare an object to store it in the database
-const note = new Note({
-    content: 'Callback functions are cool',
-    important: true
-});
+// prepare an object to store it in the database
+// const note = new Note({
+//     content: 'Callback functions are cool',
+//     important: true
+// });
 
 // // storing the new object to the database
 // note.save()
