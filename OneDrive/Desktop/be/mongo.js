@@ -10,7 +10,7 @@ const password = process.argv[2];
 
 const url =
 
-    `mongodb+srv://ashwinimudknna:tAgQYCGXoj8IqJkV@cluster0.47boroe.mongodb.net/`;
+`mongodb+srv://ashwinimudknna:${password}@cluster0.47boroe.mongodb.net/`;
 
 // set the strictQuery to false, so that it will disable the strict mode for the query filters
 // mongoose will not throw any error when we use an undefined field in the query (ignored)
