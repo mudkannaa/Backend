@@ -29,6 +29,17 @@ mongoose.connect(url)
 // create a model
 const Note = require('./models/note');
 
+// requestLogger middleware
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method);
+    console.log('Path:', request.path);
+    console.log('Body:', request.body);
+    console.log('--------');
+    next();// yielding the control to the next middleware
+}
+
+app.use(requestLogger);
+
 // set the endpoints
 
 // import the controllers/routes
@@ -56,6 +67,27 @@ app.use('/api/notes', putNote);
 
 // patch request to update the identified resource with the request data
 app.use('/api/notes', patchNote);
+
+// middleware for catching requests that are made to non-existent routes
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'});
+}
+
+app.use(unknownEndpoint);
+
+// Express error handlers - middleware
+// handler of requests with result to errors
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message);
+
+    if(error.name === 'CastError'){
+        return response.status(400).send({error: 'malformatted id'});
+    }
+
+    next(error);
+}
+
+app.use(errorHandler);
 
 // Listen to the PORT for requests
 const PORT = process.env.PORT || 3001;
