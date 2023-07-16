@@ -1,47 +1,12 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
+const cors = require('cors');
+app.use(cors());
 app.use(express.json());
 
-const url =
-`mongodb+srv://ashwinimudknna:tAgQYCGXoj8IqJkV@cluster0.47boroe.mongodb.net/`;
-
-// set the strictQuery to false, so that it will disable the strict mode for the query filters
-// mongoose will not throw any error when we use an undefined field in the query (ignored)
-mongoose.set('strictQuery', false);
-
-// to connect to the database
-mongoose.connect(url);
-
-// optional: to check whether a successful connection is made to the mongoDB database
-const db = mongoose.connection;
-
-db.once('connected', () => {
-    console.log('Connected to MongoDB Database');
-    // mongoose.connection.close();
-})
-db.on('error', console.error.bind(console, 'Connection Error'));
-
-// create a schema
-const noteSchema = new mongoose.Schema({
-    content: String,
-    date: {
-        type: Date,
-        default: Date.now
-    },
-    important: Boolean
-});
-
-noteSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
-})
-
 // create a model
-const Note = mongoose.model('Note', noteSchema, 'notes');
+const Note = require('./models/note');
 
 // set the endpoints
 
@@ -122,7 +87,7 @@ app.put('/api/notes/:id', (request, response) => {
 });
 
 // Listen to the PORT for requests
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
