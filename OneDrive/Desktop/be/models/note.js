@@ -1,28 +1,21 @@
 const mongoose = require('mongoose');
 
-const url = process.env.MONGODB_URI;
-
-// set the strictQuery to false, so that it will disable the strict mode for the query filters
-// mongoose will not throw any error when we use an undefined field in the query (ignored)
-mongoose.set('strictQuery', false);
-
-// to connect to the database
-mongoose.connect(url)
-    .then(result => {
-        console.log('Connected to MongoDB Database');
-    })
-    .catch((error) => {
-        console.log('Error connecting to MongoDB:', error.message);
-    })
-
 // create a schema
 const noteSchema = new mongoose.Schema({
-    content: String,
+    content: {
+        type: String,
+        required: true,
+        minlength: 5
+    },
     date: {
         type: Date,
         default: Date.now
     },
-    important: Boolean
+    important: Boolean,
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 });
 
 noteSchema.set('toJSON', {

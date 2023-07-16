@@ -1,15 +1,15 @@
 // import the express Router
 const notesRouter = require('express').Router();
+const jwt = require('jsonwebtoken');
 
 // import the model
 const Note = require('../models/note');
+const User = require('../models/user');
 
 // endpoint to get all the notes
-notesRouter.get('/', (request, response) => {
-    Note.find({}, {})
-    .then((notes) => {
-        response.json(notes);
-    });
+notesRouter.get('/', async (request, response) => {
+    const notes = await Note.find({}, {}).populate('user', {username: 1, name: 1});
+    response.status(200).json(notes);
 });
 
 // fetches a single resource
@@ -26,13 +26,41 @@ notesRouter.get('/:id', (request, response, next) => {
 });
 
 // creates a new resource based on the request data
-notesRouter.post('/', (request, response) => {
-    const note = new Note(request.body);
+notesRouter.post('/', async (request, response) => {
+    const body = request.body;
 
-    note.save()
-        .then((savedNote) => {
-            response.status(201).json({ message: 'Note created successfully', note: savedNote });
-        })
+    const getTokenFrom = (request) => {
+        const authorization = request.get('authorization');
+
+        if(authorization && authorization.startsWith('bearer ')){
+            return authorization.replace('bearer ', '');
+        }
+
+        return null;
+    }
+
+    // verify the token
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+
+    if(!decodedToken.id){
+        return response.status(401).json({ error: 'token invalid' })
+    }
+
+    const user  = await User.findById(decodedToken.id);
+
+    // prepare the note
+    const note = new Note({
+        content: body.content,
+        important: body.important,
+        user: user._id
+    });
+
+    // save the note
+    const savedNote = await note.save();
+    user.notes = user.notes.concat(savedNote._id);
+    await user.save();
+
+    response.status(201).json(savedNote);
 });
 
 // deletes a single resource
